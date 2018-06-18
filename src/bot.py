@@ -1,4 +1,6 @@
 import os
+import string
+
 import discord
 from discord.ext import commands
 import asyncio
@@ -76,6 +78,12 @@ async def help(ctx, cmd=""):
         embed = discord.Embed(color=0x21c6bb)
         embed.add_field(name="__Possible names__", value="Anon\nCheer\nDream\nFi\nGlenna\nMystic\nSci\nWo", inline=False)
         await ctx.send(embed=embed)
+
+
+@bot.command()
+async def when_mentioned(ctx, cmd: string):
+    if cmd == "help":
+        help(ctx)
 
 
 bot.run(os.environ["BOT_TOKEN"])
