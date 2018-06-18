@@ -29,6 +29,7 @@ def init():
         components = person.split('\t')
         name = components[0]
         alias_list = [name]
+        names[name.lower()] = name
         if len(components) > 1:
             alias_list.extend(components[1][1:len(components[1])-1].split(","))
             for alias in alias_list:
