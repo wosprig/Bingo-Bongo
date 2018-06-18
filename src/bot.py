@@ -55,7 +55,7 @@ async def on_ready():
 
 
 @bot.command()
-async def aliases(ctx, arg=""):
+async def aliases(ctx, *, arg=""):
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         desc = ""
@@ -71,7 +71,7 @@ async def aliases(ctx, arg=""):
 
 
 @bot.command()
-async def fave(ctx, arg=""):
+async def fave(ctx, *, arg=""):
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         file = open(f"images/people/{name.lower()}.dat", 'r')
