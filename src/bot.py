@@ -1,5 +1,4 @@
 import os
-import string
 
 import discord
 from discord.ext import commands
@@ -58,13 +57,17 @@ async def fave(ctx, *args):
 
 
 @bot.command()
-async def ship(ctx, arg=""):
+async def ship(ctx, *args):
+    if len(args) == 0:
+        await ctx.send("Correct usage is `w!ship` __name__")
+        return
+
+    arg = " ".join(args)
+
     if arg.lower() in values.ships:
-        name = values.names.get(arg.lower())
+        name = values.ships.get(arg.lower())
         image = utils.random_from_file(f"images/ships/{name.lower()}.dat")
         await ctx.send(image)
-    elif arg == "":
-        await ctx.send("Correct usage is `w!ship` __name__")
     else:
         await ctx.send("Sorry, I don't recognise that ship.")
 
