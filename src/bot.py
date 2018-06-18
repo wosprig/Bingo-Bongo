@@ -171,6 +171,10 @@ async def help(ctx, cmd=""):
         embed = discord.Embed(color=0x21c6bb)
         embed.add_field(name="__Possible ships__", value=ship_list, inline=False)
         await ctx.send(embed=embed)
+    elif cmd == 'aliases':
+        await ctx.send("aliases `name`")
+        embed = discord.Embed(description="Lists all aliases for a ship or person's `name`.", color=0xeabd1c)
+        await ctx.send(embed=embed)
 
 
 @bot.command()
