@@ -55,8 +55,7 @@ async def ship(ctx, name=""):
     if name.lower() in ships:
         file = open(f"images/ships/{name.lower()}.dat", 'r')
         images = file.read().split('\n')
-        np.random.seed(seed=round(time.time()))
-        index = np.random.randint(low=0, high=len(images) - 1)
+        index = np.random.randint(low=0, high=len(images))
         await ctx.send(images[index])
     elif name == "":
         await ctx.send("Correct usage is `w!ship` __name__")
