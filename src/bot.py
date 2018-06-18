@@ -60,7 +60,7 @@ async def aliases(ctx, arg=""):
         desc = ""
         for alias in all_aliases.get(name):
             desc += alias.capitalize() + "\n"
-
+        arg = arg.capitalize()
         embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
         await ctx.send(embed=embed)
     elif arg == "":
@@ -71,7 +71,6 @@ async def aliases(ctx, arg=""):
 
 @bot.command()
 async def fave(ctx, arg=""):
-    print(names.keys())
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         file = open(f"images/people/{name}.dat", 'r')
