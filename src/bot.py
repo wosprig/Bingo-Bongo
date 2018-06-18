@@ -56,6 +56,7 @@ async def on_ready():
 
 @bot.command()
 async def aliases(ctx, arg=""):
+    print(names.keys())
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         desc = ""
