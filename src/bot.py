@@ -4,8 +4,6 @@ from discord.ext import commands
 import asyncio
 import numpy as np
 import time
-from boto.s3.connection import S3Connection
-s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
 
 
 client = discord.Client()
@@ -80,4 +78,4 @@ async def help(ctx, cmd=""):
         await ctx.send(embed=embed)
 
 
-bot.run(s3.access_key("BOT_TOKEN"))
+bot.run(os.environ["BOT_TOKEN"])
