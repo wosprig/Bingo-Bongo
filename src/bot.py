@@ -11,17 +11,21 @@ import time
 client = discord.Client()
 bot = commands.Bot(command_prefix="w!", description="Just trying this out.")
 bot.remove_command('help')
-names = {
-    'glenna',
-    'wo',
-    'fi',
-    'sci',
-    'dream',
-    'anon',
-    'mystic',
-    'cheer'
-}
-help_text = "`w!fave` __name__ - Finds a random gif of one of `name`'s faves"
+file = open("names.dat", 'r')
+names = file.read().split('\n')
+name_list = ""
+for person in names:
+    name_list += person.capitalize() + "\n"
+
+file = open("ships.dat", 'r')
+ships = file.read().split('\n')
+ship_list = ""
+for ship in ships:
+    ship_list += ship.capitalize() + "\n"
+
+
+help_text = "`w!fave` __name__ - Finds a random gif of one of `name`'s faves\n" \
+            "`w!ship` __shipName__ - Finds a random gif of one of `shipName`"
 
 
 @bot.event
@@ -35,15 +39,29 @@ async def on_ready():
 @bot.command()
 async def fave(ctx, name=""):
     if name.lower() in names:
-        file = open(f"images/{name.lower()}.dat", 'r')
+        file = open(f"images/people/{name.lower()}.dat", 'r')
         images = file.read().split('\n')
+        np.random.seed(seed=round(time.time()))
+        index = np.random.randint(low=0, high=len(images) - 1)
+        await ctx.send(images[index])
+    elif name == "":
+        await ctx.send("Correct usage is `w!fave` __name__")
     else:
         await ctx.send("Sorry, I don't recognise that name.")
-        return
 
-    np.random.seed(seed=round(time.time()))
-    index = np.random.randint(low=0, high=len(images)-1)
-    await ctx.send(images[index])
+
+@bot.command()
+async def ship(ctx, name=""):
+    if name.lower() in names:
+        file = open(f"images/ships/{name.lower()}.dat", 'r')
+        images = file.read().split('\n')
+        np.random.seed(seed=round(time.time()))
+        index = np.random.randint(low=0, high=len(images) - 1)
+        await ctx.send(images[index])
+    elif name == "":
+        await ctx.send("Correct usage is `w!ship` __name__")
+    else:
+        await ctx.send("Sorry, I don't recognise that ship.")
 
 
 @bot.command()
@@ -76,7 +94,14 @@ async def help(ctx, cmd=""):
         embed = discord.Embed(description="Sends random image of `name`'s favourite DCMK character.", color=0xeabd1c)
         await ctx.send(embed=embed)
         embed = discord.Embed(color=0x21c6bb)
-        embed.add_field(name="__Possible names__", value="Anon\nCheer\nDream\nFi\nGlenna\nMystic\nSci\nWo", inline=False)
+        embed.add_field(name="__Possible names__", value=name_list, inline=False)
+        await ctx.send(embed=embed)
+    elif cmd == 'ship':
+        await ctx.send("ship `shipName`")
+        embed = discord.Embed(description="Sends random image of `shipName`.", color=0xeabd1c)
+        await ctx.send(embed=embed)
+        embed = discord.Embed(color=0x21c6bb)
+        embed.add_field(name="__Possible ships__", value=ship_list, inline=False)
         await ctx.send(embed=embed)
 
 
