@@ -55,7 +55,13 @@ async def on_ready():
 
 
 @bot.command()
-async def aliases(ctx, *, arg=""):
+async def aliases(ctx, *args):
+    if len(args) == 0:
+        await ctx.send("Correct usage is `w!aliases` __name__")
+        return
+
+    arg = " ".join(args)
+
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         desc = ""
@@ -64,14 +70,17 @@ async def aliases(ctx, *, arg=""):
         arg = arg.capitalize()
         embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
         await ctx.send(embed=embed)
-    elif arg == "":
-        await ctx.send("Correct usage is `w!aliases` __name__")
     else:
         await ctx.send("Sorry, I don't recognise that name.")
 
 
 @bot.command()
-async def fave(ctx, *, arg=""):
+async def fave(ctx, *args):
+    if len(args) == 0:
+        await ctx.send("Correct usage is `w!fave` __name__")
+        return
+
+    arg = " ".join(args)
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         file = open(f"images/people/{name.lower()}.dat", 'r')
@@ -79,8 +88,6 @@ async def fave(ctx, *, arg=""):
         np.random.seed(seed=round(time.time()))
         index = np.random.randint(low=0, high=len(images) - 1)
         await ctx.send(images[index])
-    elif arg == "":
-        await ctx.send("Correct usage is `w!fave` __name__")
     else:
         await ctx.send("Sorry, I don't recognise that name.")
 
