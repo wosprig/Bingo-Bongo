@@ -3,62 +3,15 @@ import string
 
 import discord
 from discord.ext import commands
-import asyncio
-import numpy as np
-import time
+
+import constants
+import data
+import utils
 
 client = discord.Client()
-bot = commands.Bot(command_prefix="w!", description="Just trying this out.")
+bot = commands.Bot(command_prefix="w!", description=constants.DESCRIPTION)
 bot.remove_command('help')
-names = {}
-all_aliases = {}
-ships = {}
-ship_aliases = {}
-name_list = ""
-ship_list = ""
-
-help_text = "`w!fave` __name__ - Finds a random gif of one of `name`'s faves\n" \
-            "`w!ship` __shipName__ - Finds a random gif of `shipName`\n" \
-            "`w!aliases` __name__ - Finds all aliases for `name`."
-
-
-def init():
-    init_names()
-    init_ships()
-
-
-def init_names():
-    file = open("names.dat", 'r')
-    temp = file.read().split('\n')
-    global name_list
-    for person in temp:
-        components = person.split('\t')
-        name = components[0]
-        alias_list = [name]
-        names[name.lower()] = name
-        if len(components) > 1:
-            alias_list.extend(components[1][1:len(components[1]) - 1].split(","))
-            for alias in alias_list:
-                names[alias.lower()] = name
-        all_aliases[name.lower()] = alias_list
-        name_list += name + "\n"
-
-
-def init_ships():
-    file = open("ships.dat", 'r')
-    temp = file.read().split('\n')
-    global ship_list
-    for relationship in temp:
-        components = relationship.split('\t')
-        name = components[0]
-        alias_list = [name]
-        ships[name.lower()] = name
-        if len(components) > 1:
-            alias_list.extend(components[1][1:len(components[1]) - 1].split(","))
-            for alias in alias_list:
-                ships[alias.lower()] = name
-        ship_aliases[name.lower()] = alias_list
-        ship_list += name + "\n"
+values = data.Data()
 
 
 @bot.event
@@ -67,10 +20,9 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    init()
 
 
-@bot.command()
+@bot.command(alias=["alias"])
 async def aliases(ctx, *args):
     if len(args) == 0:
         await ctx.send("Correct usage is `w!aliases` __name__")
@@ -78,19 +30,8 @@ async def aliases(ctx, *args):
 
     arg = " ".join(args)
 
-    if arg.lower() in names.keys():
-        name = names.get(arg.lower())
-        desc = ""
-        for alias in all_aliases.get(name.lower()):
-            desc += alias + "\n"
-        arg = arg.capitalize()
-        embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
-        await ctx.send(embed=embed)
-    elif arg.lower() in ships.keys():
-        name = ships.get(arg.lower())
-        desc = ""
-        for alias in ship_aliases.get(name.lower()):
-            desc += alias + "\n"
+    if arg.lower() in values.names.keys() or arg.lower() in values.ships.keys():
+        desc = values.getaliases(arg)
         arg = arg.capitalize()
         embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
         await ctx.send(embed=embed)
@@ -98,35 +39,31 @@ async def aliases(ctx, *args):
         await ctx.send("Sorry, I don't recognise that name.")
 
 
-@bot.command()
+@bot.command(alias=["faves"])
 async def fave(ctx, *args):
     if len(args) == 0:
         await ctx.send("Correct usage is `w!fave` __name__")
         return
 
     arg = " ".join(args)
-    if arg.lower() in names.keys():
-        name = names.get(arg.lower())
+    if arg.lower() in values.names.keys():
+        name = values.names.get(arg.lower())
         filename = name.lower()
     else:
         filename = "mystic"
         # await ctx.send("Sorry, I don't recognise that name.")
 
-    file = open(f"images/people/{filename}.dat", 'r')
-    images = file.read().split('\n')
-    np.random.seed(seed=round(time.time()))
-    index = np.random.randint(low=0, high=len(images) - 1)
-    await ctx.send(images[index])
+    image = utils.random_from_file(f"images/people/{filename}.dat")
+    await ctx.send(image)
 
 
 @bot.command()
-async def ship(ctx, name=""):
-    if name.lower() in ships:
-        file = open(f"images/ships/{name.lower()}.dat", 'r')
-        images = file.read().split('\n')
-        index = np.random.randint(low=0, high=len(images))
-        await ctx.send(images[index])
-    elif name == "":
+async def ship(ctx, arg=""):
+    if arg.lower() in values.ships:
+        name = values.names.get(arg.lower())
+        image = utils.random_from_file(f"images/ships/{name.lower()}.dat")
+        await ctx.send(image)
+    elif arg == "":
         await ctx.send("Correct usage is `w!ship` __name__")
     else:
         await ctx.send("Sorry, I don't recognise that ship.")
@@ -134,13 +71,13 @@ async def ship(ctx, name=""):
 
 @bot.command()
 async def info(ctx):
-    embed = discord.Embed(title="BingoBongo", description="Wo's trying bots.", color=0x21c6bb)
+    embed = discord.Embed(title="BingoBongo", description=constants.DESCRIPTION, color=constants.MAIN_COLOUR)
 
     # give info about you here
     embed.add_field(name="Author", value="Wosprig")
 
     # Shows the number of servers the bot is member of.
-    embed.add_field(name="Server count", value=f"{len(bot.guilds)}")
+    embed.add_field(name="Server count", value=f'{len(bot.guilds)}')
 
     # give users a link to invite this bot to their server
     # embed.add_field(name="Invite", value="[Invite link](<insert your OAuth invitation link here>)")
@@ -151,33 +88,30 @@ async def info(ctx):
 @bot.command()
 async def help(ctx, cmd=""):
     if cmd == "":
-        await ctx.send("Command prefix: `w!`\n"
-                       "You can use `w!help <command_name>` for more detailed help.\n"
-                       "__**BingoBongo help**__"
-                       )
-        embed = discord.Embed(title="__List of commands:__", description=help_text, color=0x21c6bb)
+        await ctx.send(constants.HELP_PREFIX)
+        embed = discord.Embed(title="__List of commands:__", description=constants.COMMAND_LIST, color=constants.MAIN_COLOUR)
         await ctx.send(embed=embed)
     elif cmd == 'fave':
         await ctx.send("fave `name`")
-        embed = discord.Embed(description="Sends random image of `name`'s favourite DCMK character.", color=0xeabd1c)
+        embed = discord.Embed(description=constants.FAVE_HELP, color=constants.SUB_COLOUR)
         await ctx.send(embed=embed)
-        embed = discord.Embed(color=0x21c6bb)
-        embed.add_field(name="__Possible names__", value=name_list, inline=False)
+        embed = discord.Embed(color=constants.MAIN_COLOUR)
+        embed.add_field(name="__Possible names__", value=values.name_list, inline=False)
         await ctx.send(embed=embed)
     elif cmd == 'ship':
         await ctx.send("ship `shipName`")
-        embed = discord.Embed(description="Sends random image of `shipName`.", color=0xeabd1c)
+        embed = discord.Embed(description=constants.SHIP_HELP, color=constants.SUB_COLOUR)
         await ctx.send(embed=embed)
-        embed = discord.Embed(color=0x21c6bb)
-        embed.add_field(name="__Possible ships__", value=ship_list, inline=False)
+        embed = discord.Embed(color=constants.MAIN_COLOUR)
+        embed.add_field(name="__Possible ships__", value=values.ship_list, inline=False)
         await ctx.send(embed=embed)
     elif cmd == 'aliases':
         await ctx.send("aliases `name`")
-        embed = discord.Embed(description="Lists all aliases for a ship or person's `name`.", color=0xeabd1c)
+        embed = discord.Embed(description=constants.ALIASES_HELP, color=constants.SUB_COLOUR)
         await ctx.send(embed=embed)
 
 
-@bot.command()
+@bot.commands.when_mentioned()
 async def when_mentioned(ctx, cmd: string):
     if cmd == "help":
         help(ctx)
