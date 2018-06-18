@@ -52,7 +52,7 @@ async def fave(ctx, name=""):
 
 @bot.command()
 async def ship(ctx, name=""):
-    if name.lower() in names:
+    if name.lower() in ships:
         file = open(f"images/ships/{name.lower()}.dat", 'r')
         images = file.read().split('\n')
         np.random.seed(seed=round(time.time()))
