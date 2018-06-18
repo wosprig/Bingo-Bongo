@@ -9,7 +9,7 @@ import data
 import utils
 
 client = discord.Client()
-bot = commands.Bot(command_prefix=("w!", commands.when_mentioned), description=constants.DESCRIPTION)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or('w!'), description=constants.DESCRIPTION)
 bot.remove_command('help')
 values = data.Data()
 
