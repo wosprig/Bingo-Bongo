@@ -9,7 +9,7 @@ import data
 import utils
 
 client = discord.Client()
-bot = commands.Bot(command_prefix="w!", description=constants.DESCRIPTION)
+bot = commands.Bot(command_prefix=("w!", commands.when_mentioned), description=constants.DESCRIPTION)
 bot.remove_command('help')
 values = data.Data()
 
@@ -109,12 +109,6 @@ async def help(ctx, cmd=""):
         await ctx.send("aliases `name`")
         embed = discord.Embed(description=constants.ALIASES_HELP, color=constants.SUB_COLOUR)
         await ctx.send(embed=embed)
-
-
-@bot.commands.when_mentioned()
-async def when_mentioned(ctx, cmd: string):
-    if cmd == "help":
-        help(ctx)
 
 
 bot.run(os.environ["BOT_TOKEN"])
