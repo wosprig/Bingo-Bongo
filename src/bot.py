@@ -33,7 +33,7 @@ async def on_ready():
 @bot.command()
 async def fave(ctx, name=""):
     if name.lower() in names:
-        file = open(f"images/{name}.dat", 'r')
+        file = open(f"images/{name.lower()}.dat", 'r')
         images = file.read().split('\n')
     else:
         await ctx.send("Sorry, I don't recognise that name.")
