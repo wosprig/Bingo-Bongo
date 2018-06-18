@@ -1,10 +1,27 @@
+import os
 import discord
 from discord.ext import commands
 import asyncio
+import numpy as np
+import time
+from boto.s3.connection import S3Connection
+s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
+
 
 client = discord.Client()
 bot = commands.Bot(command_prefix="w!", description="Just trying this out.")
 bot.remove_command('help')
+names = {
+    'glenna',
+    'wo',
+    'fi',
+    'sci',
+    'dream',
+    'anon',
+    'mystic',
+    'cheer'
+}
+help_text = "`w!fave` __name__ - Finds a random gif of one of `name`'s faves"
 
 
 @bot.event
@@ -16,12 +33,20 @@ async def on_ready():
 
 
 @bot.command()
-async def fave(ctx, name):
-    await ctx.send("https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif")
-    # TODO
+async def fave(ctx, name=""):
+    if name.lower() in names:
+        file = open(f"images/{name}.dat", 'r')
+        images = file.read().split('\n')
+    else:
+        await ctx.send("Sorry, I don't recognise that name.")
+        return
+
+    np.random.seed(seed=round(time.time()))
+    index = np.random.randint(low=0, high=len(images)-1)
+    await ctx.send(images[index])
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def info(ctx):
     embed = discord.Embed(title="BingoBongo", description="Wo's trying bots.", color=0x21c6bb)
 
@@ -38,12 +63,21 @@ async def info(ctx):
 
 
 @bot.command()
-async def help(ctx):
-    embed = discord.Embed(title="BingoBongo", description="Wo's trying bots. List of commands are:", color=0x21c6bb)
+async def help(ctx, cmd=""):
+    if cmd == "":
+        await ctx.send("Command prefix: `w!`\n"
+                       "You can use `w!help <command_name>` for more detailed help.\n"
+                       "__**BingoBongo help**__"
+                       )
+        embed = discord.Embed(title="__List of commands:__", description=help_text, color=0x21c6bb)
+        await ctx.send(embed=embed)
+    elif cmd == 'fave':
+        await ctx.send("fave `name`")
+        embed = discord.Embed(description="Sends random image of `name`'s favourite DCMK character.", color=0xeabd1c)
+        await ctx.send(embed=embed)
+        embed = discord.Embed(color=0x21c6bb)
+        embed.add_field(name="__Possible names__", value="Anon\nCheer\nDream\nFi\nGlenna\nMystic\nSci\nWo", inline=False)
+        await ctx.send(embed=embed)
 
-    embed.add_field(name="w!fave <name>", value="Finds a random gif of one of <name>'s faves", inline=False)
 
-    await ctx.send(embed=embed)
-
-
-bot.run($BOT_TOKEN)
+bot.run(s3.access_key("BOT_TOKEN"))
