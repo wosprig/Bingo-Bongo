@@ -13,6 +13,7 @@ bot.remove_command('help')
 names = {}
 all_aliases = {}
 ships = {}
+ship_aliases = {}
 name_list = ""
 ship_list = ""
 
@@ -22,6 +23,11 @@ help_text = "`w!fave` __name__ - Finds a random gif of one of `name`'s faves\n" 
 
 
 def init():
+    init_names()
+    init_ships()
+
+
+def init_names():
     file = open("names.dat", 'r')
     temp = file.read().split('\n')
     global name_list
@@ -31,18 +37,28 @@ def init():
         alias_list = [name]
         names[name.lower()] = name
         if len(components) > 1:
-            alias_list.extend(components[1][1:len(components[1])-1].split(","))
+            alias_list.extend(components[1][1:len(components[1]) - 1].split(","))
             for alias in alias_list:
                 names[alias.lower()] = name
         all_aliases[name.lower()] = alias_list
         name_list += name + "\n"
 
+
+def init_ships():
     file = open("ships.dat", 'r')
-    global ships
-    ships = file.read().split('\n')
+    temp = file.read().split('\n')
     global ship_list
-    for relationship in ships:
-        ship_list += relationship.capitalize() + "\n"
+    for relationship in temp:
+        components = relationship.split('\t')
+        name = components[0]
+        alias_list = [name]
+        ships[name.lower()] = name
+        if len(components) > 1:
+            alias_list.extend(components[1][1:len(components[1]) - 1].split(","))
+            for alias in alias_list:
+                ships[alias.lower()] = name
+        ship_aliases[name.lower()] = alias_list
+        ship_list += name + "\n"
 
 
 @bot.event
@@ -66,6 +82,14 @@ async def aliases(ctx, *args):
         name = names.get(arg.lower())
         desc = ""
         for alias in all_aliases.get(name.lower()):
+            desc += alias + "\n"
+        arg = arg.capitalize()
+        embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
+        await ctx.send(embed=embed)
+    elif arg.lower() in ships.keys():
+        name = ships.get(arg.lower())
+        desc = ""
+        for alias in ship_aliases.get(name.lower()):
             desc += alias + "\n"
         arg = arg.capitalize()
         embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
