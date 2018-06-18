@@ -26,15 +26,15 @@ def init():
     temp = file.read().split('\n')
     global name_list
     for person in temp:
-        components = person.split(" ")
+        components = person.split('\t')
         name = components[0]
         alias_list = [name]
         if len(components) > 1:
             alias_list.extend(components[1][1:len(components[1])-1].split(","))
             for alias in alias_list:
-                names[alias] = name
-        all_aliases[name] = alias_list
-        name_list += name.capitalize() + "\n"
+                names[alias.lower()] = name
+        all_aliases[name.lower()] = alias_list
+        name_list += name + "\n"
 
     file = open("ships.dat", 'r')
     global ships
@@ -58,8 +58,8 @@ async def aliases(ctx, arg=""):
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         desc = ""
-        for alias in all_aliases.get(name):
-            desc += alias.capitalize() + "\n"
+        for alias in all_aliases.get(name.lower()):
+            desc += alias + "\n"
         arg = arg.capitalize()
         embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
         await ctx.send(embed=embed)
@@ -73,7 +73,7 @@ async def aliases(ctx, arg=""):
 async def fave(ctx, arg=""):
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
-        file = open(f"images/people/{name}.dat", 'r')
+        file = open(f"images/people/{name.lower()}.dat", 'r')
         images = file.read().split('\n')
         np.random.seed(seed=round(time.time()))
         index = np.random.randint(low=0, high=len(images) - 1)
