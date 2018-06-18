@@ -17,7 +17,7 @@ name_list = ""
 ship_list = ""
 
 help_text = "`w!fave` __name__ - Finds a random gif of one of `name`'s faves\n" \
-            "`w!ship` __shipName__ - Finds a random gif of one of `shipName`\n" \
+            "`w!ship` __shipName__ - Finds a random gif of `shipName`\n" \
             "`w!aliases` __name__ - Finds all aliases for `name`."
 
 
@@ -83,13 +83,16 @@ async def fave(ctx, *args):
     arg = " ".join(args)
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
-        file = open(f"images/people/{name.lower()}.dat", 'r')
-        images = file.read().split('\n')
-        np.random.seed(seed=round(time.time()))
-        index = np.random.randint(low=0, high=len(images) - 1)
-        await ctx.send(images[index])
+        filename = name.lower()
     else:
-        await ctx.send("Sorry, I don't recognise that name.")
+        filename = "mystic"
+        # await ctx.send("Sorry, I don't recognise that name.")
+
+    file = open(f"images/people/{filename}.dat", 'r')
+    images = file.read().split('\n')
+    np.random.seed(seed=round(time.time()))
+    index = np.random.randint(low=0, high=len(images) - 1)
+    await ctx.send(images[index])
 
 
 @bot.command()
