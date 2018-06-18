@@ -21,7 +21,7 @@ async def on_ready():
     print('------')
 
 
-@bot.command(alias=["alias"])
+@bot.command(aliases=["alias"])
 async def aliases(ctx, *args):
     if len(args) == 0:
         await ctx.send("Correct usage is `w!aliases` __name__")
@@ -38,7 +38,7 @@ async def aliases(ctx, *args):
         await ctx.send("Sorry, I don't recognise that name.")
 
 
-@bot.command(alias=["faves"])
+@bot.command(aliases=["faves"])
 async def fave(ctx, *args):
     if len(args) == 0:
         await ctx.send("Correct usage is `w!fave` __name__")
