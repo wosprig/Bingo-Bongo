@@ -30,7 +30,7 @@ def init():
         name = components[0]
         alias_list = [name]
         if len(components) > 1:
-            alias_list.extend(components[1][1:len(components[1])].split(","))
+            alias_list.extend(components[1][1:len(components[1])-1].split(","))
             for alias in alias_list:
                 names[alias] = name
         all_aliases[name] = alias_list
@@ -71,6 +71,7 @@ async def aliases(ctx, arg=""):
 
 @bot.command()
 async def fave(ctx, arg=""):
+    print(names.keys())
     if arg.lower() in names.keys():
         name = names.get(arg.lower())
         file = open(f"images/people/{name}.dat", 'r')
