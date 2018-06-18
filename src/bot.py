@@ -7,25 +7,41 @@ import asyncio
 import numpy as np
 import time
 
-
 client = discord.Client()
 bot = commands.Bot(command_prefix="w!", description="Just trying this out.")
 bot.remove_command('help')
-file = open("names.dat", 'r')
-names = file.read().split('\n')
+names = {}
+all_aliases = {}
+ships = {}
 name_list = ""
-for person in names:
-    name_list += person.capitalize() + "\n"
-
-file = open("ships.dat", 'r')
-ships = file.read().split('\n')
 ship_list = ""
-for ship in ships:
-    ship_list += ship.capitalize() + "\n"
-
 
 help_text = "`w!fave` __name__ - Finds a random gif of one of `name`'s faves\n" \
-            "`w!ship` __shipName__ - Finds a random gif of one of `shipName`"
+            "`w!ship` __shipName__ - Finds a random gif of one of `shipName`\n" \
+            "`w!aliases` __name__ - Finds all aliases for `name`."
+
+
+def init():
+    file = open("names.dat", 'r')
+    temp = file.read().split('\n')
+    global name_list
+    for person in temp:
+        components = person.split(" ")
+        name = components[0]
+        alias_list = [name]
+        if len(components) > 1:
+            alias_list.extend(components[1][1:len(components[1])].split(","))
+            for alias in alias_list:
+                names[alias] = name
+        all_aliases[name] = alias_list
+        name_list += name.capitalize() + "\n"
+
+    file = open("ships.dat", 'r')
+    global ships
+    ships = file.read().split('\n')
+    global ship_list
+    for relationship in ships:
+        ship_list += relationship.capitalize() + "\n"
 
 
 @bot.event
@@ -37,14 +53,31 @@ async def on_ready():
 
 
 @bot.command()
-async def fave(ctx, name=""):
-    if name.lower() in names:
-        file = open(f"images/people/{name.lower()}.dat", 'r')
+async def aliases(ctx, arg=""):
+    if arg.lower() in names.keys():
+        name = names.get(arg.lower())
+        desc = ""
+        for alias in all_aliases.get(name):
+            desc += alias.capitalize() + "\n"
+
+        embed = discord.Embed(title=f"Aliases for {arg}", description=desc, color=0x21c6bb)
+        await ctx.send(embed=embed)
+    elif arg == "":
+        await ctx.send("Correct usage is `w!aliases` __name__")
+    else:
+        await ctx.send("Sorry, I don't recognise that name.")
+
+
+@bot.command()
+async def fave(ctx, arg=""):
+    if arg.lower() in names.keys():
+        name = names.get(arg.lower())
+        file = open(f"images/people/{name}.dat", 'r')
         images = file.read().split('\n')
         np.random.seed(seed=round(time.time()))
         index = np.random.randint(low=0, high=len(images) - 1)
         await ctx.send(images[index])
-    elif name == "":
+    elif arg == "":
         await ctx.send("Correct usage is `w!fave` __name__")
     else:
         await ctx.send("Sorry, I don't recognise that name.")
