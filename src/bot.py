@@ -1,3 +1,4 @@
+import numpy as np
 import os
 
 import discord
@@ -70,6 +71,18 @@ async def ship(ctx, *args):
         await ctx.send(image)
     else:
         await ctx.send("Sorry, I don't recognise that ship.")
+
+
+@bot.command()
+async def random(ctx):
+    all_names = values.ship_aliases.keys() + values.all_aliases.keys()
+    rand = np.random.randint(0, len(all_names))
+    filename = all_names[rand]
+    if filename in values.ship_aliases.keys():
+        image = utils.random_from_file(f"images/ships/{filename.lower()}.dat")
+    else:
+        image = utils.random_from_file(f"images/people/{filename.lower()}.dat")
+    await ctx.send(image)
 
 
 @bot.command()
