@@ -75,7 +75,7 @@ async def ship(ctx, *args):
 
 @bot.command()
 async def random(ctx):
-    all_names = values.ship_aliases.keys() + values.all_aliases.keys()
+    all_names = list(values.ship_aliases.keys()) + list(values.all_aliases.keys())
     rand = np.random.randint(0, len(all_names))
     filename = all_names[rand]
     if filename in values.ship_aliases.keys():
